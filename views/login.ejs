@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("head.ejs")%>
+        <link rel="stylesheet" href="css/login.css">
+    </head>
+    <body>
+        <%- include("header.ejs")%>
+        <div id="main">
+            <div id="main-container">
+                <div class="main-box">
+                    <h1>Login</h1>
+                    <p>パスワードを忘れた場合は、管理者(Sky)に連絡してください。</p>
+                        <form>
+                            <div class="form-group">
+                                <label for="username">username</label>
+                                <input type="text" id="username" autocomplete="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">password</label>
+                                <input type="password" id="password" autocomplete="current-password" required>
+                            </div>
+                            <button type="button" id="form-submit">login</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+        <script src="js/login.js"></script>
+    </body>
+</html>

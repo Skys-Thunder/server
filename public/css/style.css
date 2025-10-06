@@ -18,8 +18,10 @@ header{
     margin:0 auto;
     max-width: 1024px;
 }
-#header-container > h1{
+#header-container > a{
     margin-left:30px;
+    text-decoration:none;
+    color:black;
 }
 #header-container > p{
     margin-right:30px;

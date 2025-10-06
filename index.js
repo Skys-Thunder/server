@@ -40,16 +40,24 @@ app.post("/api/login",(req,res)=>{
         })
     });
 });
+app.get("/login",(req,res)=>{
+    // ログイン完了後、元のページに戻す実装をする！
+    res.render("login");
+})
 app.get("/panel",(req,res)=>{
     const sessionid=req.cookies.sessionid;
-    if(!sessionid) return res.status(403).end();
+    if(!sessionid) return res.redirect("/login");
     db.get("select * from users where sessionid = ?",[sessionid],(err,dt)=>{
-        if(!dt) return res.status(403).end();
-        if((Date.now-dt.expire)/1000>60*60*24) return res.status(403).end();
-        if(dt.role!="admin") return res.status(403).end();
+        if(!dt) return res.redirect("/login");
+        if((Date.now-dt.expire)/1000>60*60*24) return res.redirect("/login");
+        if(dt.role!="admin") return res.redirect("/login");
         res.render("panel.ejs");
     });
 });
+app.get("/article/:slug",(req,res)=>{
+    console.log(req.params.slug);
+    res.send(req.params.slug);
+})
 app.use((req,res)=>{
     res.status(404).render("404");
 });
