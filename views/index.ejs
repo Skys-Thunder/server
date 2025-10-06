@@ -2,12 +2,14 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sky's Server</title>
         <link rel="icon" href="/src/favicon.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.css" integrity="sha384-//SZkxyB7axjCAopkAL1E1rve+ZSPKapD89Lo/lLhcsXR+zOYl5z6zJZEFXil+q0" crossorigin="anonymous">
     </head>
     <body>
         <header>
@@ -18,8 +20,25 @@
         </header>
         <div id="main">
             <div id="main-container">
-                <h1>TEST</h1>
+                <div class="main-box">
+                    <h1>About</h1>
+                    <p>このサイトの運営者について、箇条書きで簡潔に紹介します。</p>
+                    <div class="mini-box">
+                        <p>・Sky_Thunder(すかいさんだー、さんだー)と言います</p>
+                        <p>・高校2年生です</p>
+                        <p>・サイト・Bot制作や、競技プログラミングをしています。</p>
+                        <p>・Javascript(Node.js)やPythonを書きます。</p>
+                        <p>・数学が好きです。(このサイトでは\(\LaTeX\)が使えたりします！)</p>
+                    </div>
+                    <p>このサイトには数学・技術系の記事やツールを気まぐれで投稿していこうと思います。よろしくお願いします！</p>
+                </div>
+                <div class="main-box">
+                    <h1>Article</h1>
+                    <p>現在準備中です。もう暫くお待ち下さい。</p>
+                </div>
             </div>
         </div>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.js" integrity="sha384-cpAIxua0Xbyc+XrpHQpCtJzGSZ6U2kS/FeyoKjnS+BgAYNV6uVUetVs/LC9+l3rs" crossorigin="anonymous"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
     </body>
 </html>
