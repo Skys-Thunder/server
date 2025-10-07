@@ -30,7 +30,12 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(async(req,res,next)=>{
     console.log(`${new Date().toLocaleString()} page:${req.url}`);
-    res.locals.username=(await islogin(req)).profile.username;
+    const lgdt=await islogin(req);
+    res.locals.islogin=lgdt.islogin;
+    if(lgdt.islogin){
+        res.locals.username=lgdt.profile.username;
+        res.locals.role=lgdt.profile.role;
+    }
     next();
 });
 app.get("/",(req,res)=>{
