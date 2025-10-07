@@ -12,12 +12,25 @@ const app=express();
 const db=new sqlite3.Database("data.sqlite3");
 const sha256=(n)=>crypto.createHash("sha256").update(n).digest("hex");
 
+function islogin(req){
+    return new Promise(resolve=>{
+        const sessionid=req.cookies.sessionid;
+        if(!sessionid) return resolve({islogin:false});
+        db.get("select * from users where sessionid = ?",[sessionid],(err,dt)=>{
+            if(!dt) return resolve({islogin:false});
+            if((Date.now()-dt.expire)/1000>60*60*24) return resolve({islogin:false});
+            return resolve({islogin:true,profile:dt});
+        })
+    });
+}
+
 app.set("view engine","ejs");
 app.use(express.static(path.join(dirname,"public")));
 app.use(express.json());
 app.use(cookieParser());
-app.use((req,res,next)=>{
+app.use(async(req,res,next)=>{
     console.log(`${new Date().toLocaleString()} page:${req.url}`);
+    res.locals.username=(await islogin(req)).profile.username;
     next();
 });
 app.get("/",(req,res)=>{
@@ -44,15 +57,11 @@ app.get("/login",(req,res)=>{
     // ログイン完了後、元のページに戻す実装をする！
     res.render("login");
 })
-app.get("/panel",(req,res)=>{
-    const sessionid=req.cookies.sessionid;
-    if(!sessionid) return res.redirect("/login");
-    db.get("select * from users where sessionid = ?",[sessionid],(err,dt)=>{
-        if(!dt) return res.redirect("/login");
-        if((Date.now-dt.expire)/1000>60*60*24) return res.redirect("/login");
-        if(dt.role!="admin") return res.redirect("/login");
-        res.render("panel.ejs");
-    });
+app.get("/panel",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect("/login");
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    res.render("panel.ejs");
 });
 app.get("/article/:slug",(req,res)=>{
     console.log(req.params.slug);

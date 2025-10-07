@@ -1,7 +1,6 @@
 form{
     display:inline-flex;
     flex-direction: column;
-    align-items: flex-end;
     border:1px solid black;
     border-radius:10px;
     margin:10px 0;
@@ -33,4 +32,8 @@ form input:focus{
     border-radius: 10px;
     padding:5px 12px;
     cursor:pointer;
+}
+#alert{
+    text-align:center;
+    color:white;
 }
