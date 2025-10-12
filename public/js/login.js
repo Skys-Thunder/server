@@ -1,3 +1,12 @@
+function getquery(){
+    const t={};
+    location.search.slice(1).split("&").map(n=>{
+        const [a,b]=n.split("=");
+        t[a]=b;
+    });
+    return t;
+}
+
 const f=document.getElementsByTagName("form")[0];
 f["form-submit"].addEventListener("click",async()=>{
     const al=document.getElementById("alert");
@@ -17,6 +26,8 @@ f["form-submit"].addEventListener("click",async()=>{
         // ログインに成功したときの処理、ポップアップを上に表示
         al.style.background="#38af00";
         al.innerText="Login Successed!";
+        const q=getquery()["redirect"];
+        if(q) location.href=q;
     }
     else{
         // ログインに失敗したときの処理

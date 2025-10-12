@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("head.ejs")%>
+        <link rel="stylesheet" href="css/form.css">
+    </head>
+    <body>
+        <%- include("header.ejs")%>
+        <div id="main">
+            <div id="main-container">
+                <div class="main-box">
+                    <h1>Contact</h1>
+                    <p>ご連絡いただいた内容によっては回答に時間を要する/お答えできない場合がございます。予めご了承ください。</p>
+                    <form>
+                        <div id="alert"></div>
+                        <div class="form-group">
+                            <label for="email">email</label>
+                            <input type="email" id="email" class="input" autocomplete="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" class="input" rows="10"></textarea>
+                        </div>
+                        <button type="button" id="form-submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="js/contact.js"></script>
+    </body>
+</html>

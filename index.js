@@ -41,11 +41,15 @@ app.use(async(req,res,next)=>{
     next();
 });
 app.get("/",(req,res)=>{
-    res.render("index.ejs");
+    res.render("index");
 });
+app.get("/contact",(req,res)=>{
+    res.render("contact");
+})
 app.post("/api/login",async(req,res)=>{
     const {username,password}=req.body;
     console.log(`${username} Login trying`);
+    if(username.length>1000||password.length>1000) return res.status(413).json({success:false});
     const dt=(await supabase.from("users").select("*").eq("username",username).limit(1)).data[0];
     if(!dt) return res.status(403).json({success:false});
     if(dt.password==sha256(password)){
@@ -57,15 +61,21 @@ app.post("/api/login",async(req,res)=>{
     }
     else res.status(403).json({success:false});
 });
+app.post("/api/contact",async(req,res)=>{
+    const {email,message}=req.body;
+    if(email.length>1000||message.length>1000) return res.status(413).json({success:false});
+    await supabase.from("contact").insert([{email,message}]);
+    res.status(200).json({success:true});
+});
 app.get("/login",(req,res)=>{
     // ログイン完了後、元のページに戻す実装をする！
     res.render("login");
 })
 app.get("/panel",async(req,res)=>{
     const logdt=await islogin(req);
-    if(!logdt.islogin) return res.redirect("/login");
+    if(!logdt.islogin) return res.redirect("/login?redirect=/panel");
     if(logdt.profile.role!="admin") return res.status(403).end();
-    res.render("panel.ejs");
+    res.render("panel");
 });
 app.get("/article/:slug",(req,res)=>{
     console.log(req.params.slug);
