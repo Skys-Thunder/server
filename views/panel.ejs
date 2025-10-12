@@ -7,8 +7,18 @@
         <%- include("header.ejs")%>
         <div id="main">
             <div id="main-container">
-                <%= username %>
+                <div class="main-box">
+                    <h1>管理者パネル</h1>
+                    <p><%= username %>さん、管理者用パネルへようこそ。ここでは記事の追加や、お問合せを確認する事が出来ます。</p>
+                </div>
+                <div class="main-box">
+                    <h1>記事</h1>
+                </div>
+                <div class="main-box">
+                    <h1>お問い合わせ一覧</h1>
+                </div>
             </div>
         </div>
+        <script src="js/panel.js"></script>
     </body>
 </html>

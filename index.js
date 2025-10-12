@@ -27,7 +27,7 @@ async function islogin(req){
 app.set("view engine","ejs");
 app.use(express.static(path.join(dirname,"public")));
 app.use(express.json());
-app.use(rateLimit({windowMs:60*1000,limit:60*5,message:"Too many requests!",standardHeaders:true}));
+app.use(rateLimit({windowMs:60/**1000*/,limit:60*5,message:"Too many requests!",standardHeaders:true}));
 app.use(cookieParser());
 app.use(async(req,res,next)=>{
     console.log(`${new Date().toLocaleString()} page:${req.url}`);
@@ -61,10 +61,15 @@ app.post("/api/login",async(req,res)=>{
     }
     else res.status(403).json({success:false});
 });
+app.get("/api/contact",async(req,res)=>{
+    const lgdt=await islogin(req);
+    if(!lgdt.islogin) return res.status(403).end();
+    console.log(await supabase.from("contact").select("*"));
+});
 app.post("/api/contact",async(req,res)=>{
     const {email,message}=req.body;
     if(email.length>1000||message.length>1000) return res.status(413).json({success:false});
-    await supabase.from("contact").insert([{email,message}]);
+    await supabase.from("contact").insert([{email,message,date:new Date().toISOString()}]);
     res.status(200).json({success:true});
 });
 app.get("/login",(req,res)=>{
