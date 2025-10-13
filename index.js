@@ -25,6 +25,7 @@ async function islogin(req){
 }
 
 app.set("view engine","ejs");
+app.set("trust proxy",["100.20.92.101","44.225.181.72","44.227.217.144","74.220.48.0/24","74.220.56.0/24"]);
 app.use(express.static(path.join(dirname,"public")));
 app.use(express.json());
 app.use(rateLimit({windowMs:60/**1000*/,limit:60*5,message:"Too many requests!",standardHeaders:true}));
