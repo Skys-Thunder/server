@@ -42,6 +42,8 @@ app.use(async(req,res,next)=>{
     next();
 });
 app.get("/",(req,res)=>{
+    console.log(req.ip);
+    console.log(req.headers["x-forwarded-for"]);
     res.render("index");
 });
 app.get("/contact",(req,res)=>{
