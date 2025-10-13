@@ -42,8 +42,6 @@ app.use(async(req,res,next)=>{
     next();
 });
 app.get("/",(req,res)=>{
-    console.log(req.ip);
-    console.log(req.headers["x-forwarded-for"]);
     res.render("index");
 });
 app.get("/contact",(req,res)=>{
@@ -73,8 +71,9 @@ app.get("/api/contact",async(req,res)=>{
 });
 app.post("/api/contact",async(req,res)=>{
     const {email,message}=req.body;
+    const xip=req.headers["x-forwarded-for"]?.split(",")?.[0]?.trim();
     if(email.length>1000||message.length>1000) return res.status(413).json({success:false});
-    await supabase.from("contact").insert([{email,message,date:new Date().toISOString(),ip:req.ip}]);
+    await supabase.from("contact").insert([{email,message,date:new Date().toISOString(),ip:xip??req.ip}]);
     res.status(200).json({success:true});
 });
 app.get("/login",(req,res)=>{
