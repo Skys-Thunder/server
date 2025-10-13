@@ -65,7 +65,7 @@ app.get("/api/contact",async(req,res)=>{
     const lgdt=await islogin(req);
     if(!lgdt.islogin) return res.status(403).end();
     const pg=Number(req.query.page);
-    const dt=await supabase.from("contact").select("*",{count:"exact"}).range(pg*10,(pg+1)*10-1);
+    const dt=await supabase.from("contact").select("*",{count:"exact"}).order("date",{ascending:false}).range(pg*10,(pg+1)*10-1);
     res.status(200).json({data:dt.data,next:dt.count>(pg+1)*10});
 });
 app.post("/api/contact",async(req,res)=>{
