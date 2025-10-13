@@ -1,0 +1,15 @@
+table{
+    border:solid 2px #f7a001;
+    border-collapse:collapse;
+}
+th,td{
+    border:dashed 1px #f7a001;
+    padding:10px;
+}
+th{
+    border-bottom:solid 1px #f7a001;
+    background:#fff5e5;
+}
+th,td{
+    border-right:solid 1px #f7a001;
+}
