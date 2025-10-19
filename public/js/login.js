@@ -1,5 +1,6 @@
 const f=document.getElementsByTagName("form")[0];
-f["form-submit"].addEventListener("click",async()=>{
+f.addEventListener("submit",async e=>{
+    e.preventDefault();
     const al=document.getElementById("alert");
     f["form-submit"].innerText="checking...";
     f["form-submit"].disabled=true;
@@ -16,7 +17,7 @@ f["form-submit"].addEventListener("click",async()=>{
     if(res.success){
         // ログインに成功したときの処理、ポップアップを上に表示
         al.style.background="#38af00";
-        al.innerText="Login Successed!";
+        al.innerText="Login succeeded!";
         const q=Object.fromEntries(new URLSearchParams(window.location.search).entries())["redirect"];
         if(q) location.href=q;
     }
@@ -28,4 +29,4 @@ f["form-submit"].addEventListener("click",async()=>{
     f["form-submit"].innerText="login";
     f["form-submit"].disabled=false;
     f["form-submit"].style.cursor="pointer";
-})
+});

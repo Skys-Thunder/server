@@ -13,6 +13,7 @@ dotenv.config();
 const dirname=path.dirname(fileURLToPath(import.meta.url));
 const app=express();
 const supabase=createClient("https://vmpwfhgwhzwhlauhpwzh.supabase.co",process.env.supabase_key);
+supabase.auth.signInWithPassword({email:process.env.email,password:process.env.password});
 const sha256=(n)=>crypto.createHash("sha256").update(n).digest("hex");
 
 async function islogin(req){
@@ -27,6 +28,7 @@ async function islogin(req){
 app.set("view engine","ejs");
 app.set("trust proxy",["100.20.92.101","44.225.181.72","44.227.217.144","74.220.48.0/24","74.220.56.0/24"]);
 app.use(express.static(path.join(dirname,"public")));
+// app.locals.path="/";
 app.use(express.json());
 app.use(rateLimit({windowMs:60/**1000*/,limit:60*5,message:"Too many requests!",standardHeaders:true}));
 app.use(cookieParser());
@@ -51,7 +53,7 @@ app.post("/api/login",async(req,res)=>{
     const {username,password}=req.body;
     console.log(`${username} Login trying`);
     if(username.length>1000||password.length>1000) return res.status(413).json({success:false});
-    const dt=(await supabase.from("users").select("*").eq("username",username).limit(1)).data[0];
+    const dt=(await supabase.from("users").select("*").eq("username",username).limit(1)).data?.[0];
     if(!dt) return res.status(403).json({success:false});
     if(dt.password==sha256(password)){
         const sessionid=crypto.randomBytes(16).toString("hex");
@@ -65,6 +67,7 @@ app.post("/api/login",async(req,res)=>{
 app.get("/api/contact",async(req,res)=>{
     const lgdt=await islogin(req);
     if(!lgdt.islogin) return res.status(403).end();
+    if(lgdt.profile.role!="admin") return res.status(403).end();
     const pg=Number(req.query.page);
     const dt=await supabase.from("contact").select("*",{count:"exact"}).order("date",{ascending:false}).range(pg*10,(pg+1)*10-1);
     res.status(200).json({data:dt.data,next:dt.count>(pg+1)*10});
@@ -73,7 +76,7 @@ app.post("/api/contact",async(req,res)=>{
     const {email,message}=req.body;
     const xip=req.headers["x-forwarded-for"]?.split(",")?.[0]?.trim();
     if(email.length>1000||message.length>1000) return res.status(413).json({success:false});
-    await supabase.from("contact").insert([{email,message,date:new Date().toISOString(),ip:xip??req.ip}]);
+    const dt=await supabase.from("contact").insert([{email,message,date:new Date().toISOString(),ip:xip??req.ip}]);
     res.status(200).json({success:true});
 });
 app.get("/login",(req,res)=>{
@@ -86,9 +89,35 @@ app.get("/panel",async(req,res)=>{
     if(logdt.profile.role!="admin") return res.status(403).end();
     res.render("panel");
 });
-app.get("/article/:slug",(req,res)=>{
-    console.log(req.params.slug);
-    res.send(req.params.slug);
+app.get("/article/new",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect("/login?redirect=/article/new");
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const cnt=(await supabase.from("article").select("*",{count:"exact"})).count;
+    const id=(await supabase.from("article").insert([{title:`無題${cnt+1}`}]).select("*")).data[0].id;
+    await supabase.storage.from("article").upload(`${id}.md`,Buffer.from(""),{
+        contentType:"text/markdown",
+        upsert:false
+    });
+    res.redirect(`/article/${id}/edit`);
+})
+app.get("/article/:id",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}`);
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
+    if(!mt) return res.status(404).render("404");
+    console.log(mt);
+    res.render("article/temp",{id:req.params.id});
+})
+app.get("/article/:id/edit",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}/edit`);
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
+    if(!mt) return res.status(404).render("404");
+    const dt=(await supabase.storage.from("article").download(`${req.params.id}.md`)).data;
+    res.render("article/edit",{title:mt.title,data:await dt.text(),public:mt.public});
 })
 app.use((req,res)=>{
     res.status(404).render("404");

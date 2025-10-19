@@ -1,0 +1,17 @@
+#ar-mk-header{
+    display: flex;
+    gap:10px;
+}
+#ar-mk-header button{
+    width:60px;
+}
+#preview{
+    border:1px solid black;
+}
+textarea{
+    width:100%;
+    resize:vertical;
+    field-sizing: content;
+    min-height:100px;
+    max-height:500px;
+}

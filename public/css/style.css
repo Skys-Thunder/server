@@ -3,6 +3,7 @@
     margin:0;
     padding:0;
     box-sizing: border-box;
+    scrollbar-gutter: stable both-edges;
 }
 header{
     width:100%;
@@ -51,20 +52,44 @@ header{
     align-items: center;
     margin-bottom:20px;
 }
-.title-list a{
-    border:none;
-    background-color: #f7a001;
-    color:white;
-    border-radius:10px;
-    padding:10px 30px;
-    text-decoration:none;
-}
-.title-list a:hover{
-    cursor:pointer;
-    background-color:#ffc250;
-}
 .mini-box{
     margin: 10px 0;
+}
+/* ここからはreset.css的な奴 */
+input,textarea{
+    width:100%;
+    padding:5px 12px;
+    border-radius:8px;
+    border:2px solid #e1e5e9;
+    transition: outline .3s, border-color .3s;
+}
+input:focus,textarea:focus{
+    outline:none;
+    border-color:#f7a001;
+}
+button{
+    border:none;
+    background-color:#f7a001;
+    color:white;
+    border-radius: 10px;
+    padding:5px 12px;
+    cursor:pointer;
+}
+table{
+    border:solid 2px #f7a001;
+    border-collapse:collapse;
+    margin-bottom:10px;
+}
+th,td{
+    border:dashed 1px #f7a001;
+    padding:10px;
+}
+th{
+    border-bottom:solid 1px #f7a001;
+    background:#fff5e5;
+}
+th,td{
+    border-right:solid 1px #f7a001;
 }
 @media screen and (max-width:768px){
     

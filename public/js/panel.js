@@ -1,5 +1,8 @@
 async function loadcontact(){
-    const res=await (await fetch(`/api/contact?page=${(document.querySelectorAll("#contacts-list tr").length-1)/10}`,{
+    q.innerText="読み込み中...";
+    q.disabled=true;
+    q.style.cursor="wait";
+    const res=await (await fetch(`/api/contact?page=${Math.ceil((document.querySelectorAll("#contacts-list tr").length-1)/10)}`,{
         headers:{
             "Content-Type": "application/json",
         },
@@ -14,5 +17,17 @@ async function loadcontact(){
             td.textContent=t??"";
         })
     }
+    if(next){
+        q.innerText="もっと読み込む";
+        q.disabled=false;
+        q.style.cursor="pointer";
+    }
+    else q.remove();
 }
+const q=document.querySelector("#loadmore");
+q.addEventListener("click",()=>{
+    loadcontact();
+});
 loadcontact();
+
+// const ws=new WebSocket("ws://localhost:8080");

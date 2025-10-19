@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("../head.ejs")%>
+        <link rel="stylesheet" href="/css/articleedit.css">
+    </head>
+    <body>
+        <%- include("../header.ejs")%>
+        <div id="main">
+            <div id="main-container">
+                <div class="main-box">
+                    <h1>記事編集</h1>
+                    <div id="ar-mk-header">
+                        <input type="text" name="title" placeholder="タイトルを入力" value="<%= title %>">
+                        <button id="update">更新</button>
+                        <button id="publish"><%= public?"非公開":"公開" %></button>
+                    </div>
+                    <div class="mini-box">
+                        <textarea id="editor"><%= data %></textarea>
+                        <div id="preview">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/articleedit.js"></script>
+    </body>
+</html>

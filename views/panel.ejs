@@ -2,7 +2,7 @@
 <html>
     <head>
         <%- include("head.ejs")%>
-        <link rel="stylesheet" href="css/panel.css">
+        <link rel="stylesheet" href="/css/panel.css">
     </head>
     <body>
         <%- include("header.ejs")%>
@@ -13,25 +13,34 @@
                     <p><%= username %>さん、管理者用パネルへようこそ。ここでは記事の追加や、お問合せを確認する事が出来ます。</p>
                 </div>
                 <div class="main-box">
-                    <h1>記事</h1>
+                    <div class="title-list">
+                        <h1>記事(未公開)</h1>
+                        <a href="/article/new"><button>記事を作る</button></a>
+                    </div>
                 </div>
                 <div class="main-box">
                     <h1>お問い合わせ一覧</h1>
-                    <table id="contacts-list">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Ip</th>
-                                <th>Email</th>
-                                <th>Message</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <div id="contact-box">
+                        <table id="contacts-list">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Ip</th>
+                                    <th>Email</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button id="loadmore">もっと読み込む</button>
+                    </div>
+                </div>
+                <div class="main-box">
+                    <h1>PC制御</h1>
                 </div>
             </div>
         </div>
-        <script src="js/panel.js"></script>
+        <script src="/js/panel.js"></script>
     </body>
 </html>

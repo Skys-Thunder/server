@@ -1,1 +1,5 @@
 ・loginページとcontactページの構造がほとんど同じなので、cssを統一させる。 => done
+・お問い合わせ一覧の票の下にさらに読み込むボタンを追加する。 => done
+・トレイリングスラッシュの有無を一貫させる。
+
+cloc . --exclude-dir=node_modules --exclude-ext=json
