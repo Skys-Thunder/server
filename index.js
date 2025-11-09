@@ -8,6 +8,10 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import {marked} from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js";
+import DOMPurify from "isomorphic-dompurify";
 
 dotenv.config();
 const dirname=path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +19,12 @@ const app=express();
 const supabase=createClient("https://vmpwfhgwhzwhlauhpwzh.supabase.co",process.env.supabase_key);
 supabase.auth.signInWithPassword({email:process.env.email,password:process.env.password});
 const sha256=(n)=>crypto.createHash("sha256").update(n).digest("hex");
+marked.use(markedHighlight({
+    langPrefix:"hljs language-",
+    highlight(code,lang){
+        return hljs.highlight(code,{language:hljs.getLanguage(lang)?lang:"plaintext"}).value;
+    }
+}));
 
 async function islogin(req){
     const sessionid=req.cookies.sessionid;
@@ -48,7 +58,52 @@ app.get("/",(req,res)=>{
 });
 app.get("/contact",(req,res)=>{
     res.render("contact");
-})
+});
+app.get("/login",(req,res)=>{
+    // ログイン完了後、元のページに戻す実装をする！
+    res.render("login");
+});
+app.get("/panel",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect("/login?redirect=/panel");
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    res.render("panel");
+});
+app.get("/article/new",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect("/login?redirect=/article/new");
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const cnt=(await supabase.from("article").select("*",{count:"exact"})).count;
+    const id=(await supabase.from("article").insert([{title:`無題${cnt+1}`}]).select("*")).data[0].id;
+    await supabase.storage.from("article").upload(`${id}.md`,Buffer.from(""),{
+        contentType:"text/markdown",
+        upsert:false
+    });
+    res.redirect(`/article/${id}/edit`);
+});
+app.get("/article/:id",async(req,res)=>{
+    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
+    if(!mt) return res.status(404).render("404");
+    if(mt.public){
+        const content=await ((await supabase.storage.from("article").download(`${req.params.id}.md`)).data).text();
+        return res.render("article/temp",{id:req.params.id,title:mt.title,content:await DOMPurify.sanitize(marked(content))});
+    }
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}`);
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const content=await ((await supabase.storage.from("article").download(`${req.params.id}.md`)).data).text();
+    res.render("article/temp",{id:req.params.id,title:mt.title,content:await DOMPurify.sanitize(marked(content))});
+});
+app.get("/article/:id/edit",async(req,res)=>{
+    const logdt=await islogin(req);
+    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}/edit`);
+    if(logdt.profile.role!="admin") return res.status(403).end();
+    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
+    if(!mt) return res.status(404).render("404");
+    const dt=(await supabase.storage.from("article").download(`${req.params.id}.md`)).data;
+    res.render("article/edit",{title:mt.title,data:await dt.text(),public:mt.public});
+});
+// API部
 app.post("/api/login",async(req,res)=>{
     const {username,password}=req.body;
     console.log(`${username} Login trying`);
@@ -79,46 +134,23 @@ app.post("/api/contact",async(req,res)=>{
     const dt=await supabase.from("contact").insert([{email,message,date:new Date().toISOString(),ip:xip??req.ip}]);
     res.status(200).json({success:true});
 });
-app.get("/login",(req,res)=>{
-    // ログイン完了後、元のページに戻す実装をする！
-    res.render("login");
-})
-app.get("/panel",async(req,res)=>{
+app.post("/api/article/:id/update",async(req,res)=>{
     const logdt=await islogin(req);
-    if(!logdt.islogin) return res.redirect("/login?redirect=/panel");
+    if(!logdt.islogin) return res.status(403).end();
     if(logdt.profile.role!="admin") return res.status(403).end();
-    res.render("panel");
-});
-app.get("/article/new",async(req,res)=>{
-    const logdt=await islogin(req);
-    if(!logdt.islogin) return res.redirect("/login?redirect=/article/new");
-    if(logdt.profile.role!="admin") return res.status(403).end();
-    const cnt=(await supabase.from("article").select("*",{count:"exact"})).count;
-    const id=(await supabase.from("article").insert([{title:`無題${cnt+1}`}]).select("*")).data[0].id;
-    await supabase.storage.from("article").upload(`${id}.md`,Buffer.from(""),{
+    await supabase.from("article").update({"title":req.body.title,"public":req.body.public,"updated_at":new Date()}).eq("id",req.params.id);
+    await supabase.storage.from("article").upload(`${req.params.id}.md`,Buffer.from(req.body.data),{
         contentType:"text/markdown",
-        upsert:false
+        upsert:true
     });
-    res.redirect(`/article/${id}/edit`);
-})
-app.get("/article/:id",async(req,res)=>{
+    res.status(200).json({success:true});
+});
+app.post("/api/article/:id/publish",async(req,res)=>{
     const logdt=await islogin(req);
-    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}`);
+    if(!logdt.islogin) return res.status(403).end();
     if(logdt.profile.role!="admin") return res.status(403).end();
-    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
-    if(!mt) return res.status(404).render("404");
-    console.log(mt);
-    res.render("article/temp",{id:req.params.id});
-})
-app.get("/article/:id/edit",async(req,res)=>{
-    const logdt=await islogin(req);
-    if(!logdt.islogin) return res.redirect(`/login?redirect=/article/${req.params.id}/edit`);
-    if(logdt.profile.role!="admin") return res.status(403).end();
-    const mt=(await supabase.from("article").select("*").eq("id",req.params.id).limit(1))?.data[0];
-    if(!mt) return res.status(404).render("404");
-    const dt=(await supabase.storage.from("article").download(`${req.params.id}.md`)).data;
-    res.render("article/edit",{title:mt.title,data:await dt.text(),public:mt.public});
-})
+});
+// API部終
 app.use((req,res)=>{
     res.status(404).render("404");
 });

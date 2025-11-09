@@ -91,6 +91,9 @@ th{
 th,td{
     border-right:solid 1px #f7a001;
 }
+h2{
+    font-size:1.5em;
+}
 @media screen and (max-width:768px){
     
 }

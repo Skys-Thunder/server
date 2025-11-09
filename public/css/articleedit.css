@@ -1,9 +1,19 @@
 #ar-mk-header{
     display: flex;
     gap:10px;
+    margin:10px 0;
 }
 #ar-mk-header button{
-    width:60px;
+    white-space: nowrap;
+}
+.pub::after{
+    content:"公開";
+}
+.unpub{
+    background:#808080;
+}
+.unpub::after{
+    content:"非公開";
 }
 #preview{
     border:1px solid black;
